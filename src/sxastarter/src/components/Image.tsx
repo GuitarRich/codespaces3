@@ -8,6 +8,8 @@ import {
   Text,
   useSitecoreContext,
 } from '@sitecore-jss/sitecore-jss-nextjs';
+import { useDynamicSVGImport } from './../hooks/useDynamicSVGImport';
+import dynamic from 'next/dynamic';
 
 interface Fields {
   Image: ImageField;
@@ -27,6 +29,30 @@ const ImageDefault = (props: ImageProps): JSX.Element => (
     </div>
   </div>
 );
+
+const NotSVGImage = (props: ImageProps, pageState: string): JSX.Element => {
+  const Image = () => <JssImage field={props.fields.Image} />;
+  const id = props.params.RenderingIdentifier;
+
+  return (
+    <div className={`component image ${props.params.styles}`} id={id ? id : undefined}>
+      <div className="component-content">
+        {pageState === 'edit' || !props.fields.TargetUrl?.value?.href ? (
+          <Image />
+        ) : (
+          <JssLink field={props.fields.TargetUrl}>
+            <Image />
+          </JssLink>
+        )}
+        <Text
+          tag="span"
+          className="image-caption field-imagecaption"
+          field={props.fields.ImageCaption}
+        />
+      </div>
+    </div>
+  );
+};
 
 export const Banner = (props: ImageProps): JSX.Element => {
   const { sitecoreContext } = useSitecoreContext();
@@ -56,31 +82,39 @@ export const Banner = (props: ImageProps): JSX.Element => {
   );
 };
 
+const SVGImage = (props: ImageProps): JSX.Element => {
+  const dynamicSVGImport = useDynamicSVGImport(props.fields?.Image.value?.src || '');
+  const SVGImage = dynamicSVGImport?.SvgIcon || null;
+  return SVGImage ? <SVGImage /> : <span>SVG Not Found</span>;
+};
+
 export const Default = (props: ImageProps): JSX.Element => {
   const { sitecoreContext } = useSitecoreContext();
 
   if (props.fields) {
-    const Image = () => <JssImage field={props.fields.Image} />;
-    const id = props.params.RenderingIdentifier;
+    if (sitecoreContext.pageEditing) {
+      return <NotSVGImage {...props} />;
+    } else {
+      if (props.fields?.Image.value?.src?.includes('.svg')) {
+        const SVGImage2 = dynamic(
+          () => import('https:' + props.fields?.Image.value?.src?.substring(6))
+        );
+        return (
+          <>
+            Test SVG Image
+            <br />
+            <div style={{ border: '1px solid red', display: 'block', width: '100%' }}>
+              <SVGImage {...props} />
+            </div>
+            <div style={{ border: '1px solid blue', display: 'block', width: '100%' }}>
+              <SVGImage2 />
+            </div>
+          </>
+        );
+      }
 
-    return (
-      <div className={`component image ${props.params.styles}`} id={id ? id : undefined}>
-        <div className="component-content">
-          {sitecoreContext.pageState === 'edit' || !props.fields.TargetUrl?.value?.href ? (
-            <Image />
-          ) : (
-            <JssLink field={props.fields.TargetUrl}>
-              <Image />
-            </JssLink>
-          )}
-          <Text
-            tag="span"
-            className="image-caption field-imagecaption"
-            field={props.fields.ImageCaption}
-          />
-        </div>
-      </div>
-    );
+      return <NotSVGImage {...props} />;
+    }
   }
 
   return <ImageDefault {...props} />;
