@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image as JssImage,
   Link as JssLink,
@@ -8,8 +8,6 @@ import {
   Text,
   useSitecoreContext,
 } from '@sitecore-jss/sitecore-jss-nextjs';
-import { useDynamicSVGImport } from './../hooks/useDynamicSVGImport';
-import dynamic from 'next/dynamic';
 
 interface Fields {
   Image: ImageField;
@@ -54,6 +52,29 @@ const NotSVGImage = (props: ImageProps, pageState: string): JSX.Element => {
   );
 };
 
+const SVGImage = (props: ImageProps): JSX.Element => {
+  const svgPath = props.fields?.Image.value?.src ? props.fields?.Image.value?.src : '';
+
+  const [svgData, setSVGData] = useState({});
+
+  useEffect(() => {
+    if (svgPath) {
+      let path = './-/media/' + svgPath.split('-/media')[1];
+      console.log('svgPath: ', path);
+      const data = async () => {
+        const Data = (await import('axios')).default;
+        Data.get(path).then((response) => {
+          const svg = response.data;
+          setSVGData(svg);
+        });
+      };
+      data();
+    }
+  }, [svgPath]); // Add closing parenthesis and semicolon here
+
+  return <div dangerouslySetInnerHTML={{ __html: svgData }} />;
+};
+
 export const Banner = (props: ImageProps): JSX.Element => {
   const { sitecoreContext } = useSitecoreContext();
   const isPageEditing = sitecoreContext.pageEditing;
@@ -82,12 +103,6 @@ export const Banner = (props: ImageProps): JSX.Element => {
   );
 };
 
-const SVGImage = (props: ImageProps): JSX.Element => {
-  const dynamicSVGImport = useDynamicSVGImport(props.fields?.Image.value?.src || '');
-  const SVGImage = dynamicSVGImport?.SvgIcon || null;
-  return SVGImage ? <SVGImage /> : <span>SVG Not Found</span>;
-};
-
 export const Default = (props: ImageProps): JSX.Element => {
   const { sitecoreContext } = useSitecoreContext();
 
@@ -96,18 +111,12 @@ export const Default = (props: ImageProps): JSX.Element => {
       return <NotSVGImage {...props} />;
     } else {
       if (props.fields?.Image.value?.src?.includes('.svg')) {
-        const SVGImage2 = dynamic(
-          () => import('https:' + props.fields?.Image.value?.src?.substring(6))
-        );
         return (
           <>
             Test SVG Image
             <br />
             <div style={{ border: '1px solid red', display: 'block', width: '100%' }}>
               <SVGImage {...props} />
-            </div>
-            <div style={{ border: '1px solid blue', display: 'block', width: '100%' }}>
-              <SVGImage2 />
             </div>
           </>
         );
