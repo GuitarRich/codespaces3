@@ -7,6 +7,10 @@
 # Ephemeral index caches used by serialization, do not commit
 .scindex
 
+.turbo
+
+node_modules
+
 # Don't commit packages
 *.itempackage
 *.sicpackage

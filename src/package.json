@@ -1,0 +1,10 @@
+{
+    "name": "xmcturbo",
+    "description": "Testing turborepo on xmcloud",
+    "version": "1",
+    "private": true,
+    "workspaces": ["./packages/*", "./sxastarter"],
+    "devDependencies": {
+        "turbo": "^1.12.4"
+    }
+}
