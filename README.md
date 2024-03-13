@@ -24,4 +24,6 @@
 This solution is designed to help developers learn and get started quickly
 with XMCLoud + SXA.
 
+touch to trigger build
+
 
