@@ -59,7 +59,7 @@ const SVGImage = (props: ImageProps): JSX.Element => {
 
   useEffect(() => {
     if (svgPath) {
-      let path = './-/media/' + svgPath.split('-/media')[1];
+      const path = './-/media/' + svgPath.split('-/media')[1];
       console.log('svgPath: ', path);
       const data = async () => {
         const Data = (await import('axios')).default;
