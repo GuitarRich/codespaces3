@@ -7,7 +7,6 @@ import {
   Field,
   LinkField,
 } from '@sitecore-jss/sitecore-jss-nextjs';
-import { emitWarning } from 'process';
 
 interface Fields {
   PromoIcon: ImageField;
