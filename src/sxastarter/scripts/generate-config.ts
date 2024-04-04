@@ -15,8 +15,7 @@ const defaultConfig: JssConfig = {
   sitecoreApiKey: process.env[`${constantCase('sitecoreApiKey')}`],
   sitecoreApiHost: process.env[`${constantCase('sitecoreApiHost')}`],
   sitecoreSiteName:
-    process.env[`${constantCase('sitecoreSiteName')}`] ||
-    process.env[`${constantCase('jssAppName')}`],
+    process.env[`${constantCase('sitecoreSiteName')}`] || process.env[`${constantCase('jssAppName')}`],
   graphQLEndpointPath: process.env[`${constantCase('graphQLEndpointPath')}`],
   defaultLanguage: process.env[`${constantCase('defaultLanguage')}`],
   graphQLEndpoint: process.env[`${constantCase('graphQLEndpoint')}`],
@@ -34,10 +33,10 @@ generateConfig(defaultConfig);
 function generateConfig(defaultConfig: JssConfig): void {
   jssConfigFactory
     .create(defaultConfig)
-    .then((config) => {
+    .then(config => {
       writeConfig(config);
     })
-    .catch((e) => {
+    .catch(e => {
       console.error('Error generating config');
       console.error(e);
       process.exit(1);
@@ -55,7 +54,7 @@ function writeConfig(config: JssConfig): void {
 const config = {};\n`;
 
   // Set configuration values, allowing override with environment variables
-  Object.keys(config).forEach((prop) => {
+  Object.keys(config).forEach(prop => {
     configText += `config.${prop} = process.env.${constantCase(prop)} || '${config[prop]}',\n`;
   });
 
